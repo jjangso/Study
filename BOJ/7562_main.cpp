@@ -19,6 +19,16 @@ public:
 	int m_iCount = 0;
 };
 
+void insertQueue(queue <Night>& pr_queue, bool pp_aryCheck[][MAX_SIZE], int p_iX, int p_iY, int p_iCount, const int& p_iLine) {
+	if (p_iX < 0 || p_iY < 0 ||					// x, y 좌표 중 하나라도 0 보다 작거나.
+		p_iX >= p_iLine || p_iY >= p_iLine ||	// x, y 좌표 중 하나라도 체스판 보다 크거나.
+		pp_aryCheck[p_iX][p_iY] == true) {		// x, y 좌표를 이미 방문했거나.
+		return;
+	}
+
+	pr_queue.push(Night(p_iX, p_iY, p_iCount));
+}
+
 int BFS(const int& p_iX, const int& p_iY, const int& p_iDestX, const int& p_iDestY, const int& p_iLine)  {
 	int iResult = 0;
 	bool aryCheck[MAX_SIZE][MAX_SIZE] = { false, };
@@ -29,6 +39,12 @@ int BFS(const int& p_iX, const int& p_iY, const int& p_iDestX, const int& p_iDes
 		Night night = queueNight.front();
 		queueNight.pop();
 
+		// 현재 나이트의 x, y 좌표와 목적지 x, y 좌표가 동일하면 종료. 
+		if (night.m_iX == p_iDestX && night.m_iY == p_iDestY) {
+			iResult = night.m_iCount;
+			break;
+		}
+
 		// 현재 나이트의 x, y 좌표를 이미 방문한 적이 있으면 NEXT.
 		if (aryCheck[night.m_iX][night.m_iY] == true) {
 			continue;
@@ -36,59 +52,14 @@ int BFS(const int& p_iX, const int& p_iY, const int& p_iDestX, const int& p_iDes
 
 		aryCheck[night.m_iX][night.m_iY] = true;
 
-		// 현재 나이트의 x, y 좌표와 목적지 x, y 좌표가 동일하면 종료. 
-		if (night.m_iX == p_iDestX && night.m_iY == p_iDestY) {
-			iResult = night.m_iCount;
-			break;
-		}
-
-		int iX = night.m_iX - 2;
-		int iY = night.m_iY + 1;
-		if (iX >= 0 && iY < p_iLine) {
-			queueNight.push(Night(iX, iY, night.m_iCount + 1));
-		}
-
-		iX = night.m_iX - 1;
-		iY = night.m_iY + 2;
-		if (iX >= 0 && iY < p_iLine) {
-			queueNight.push(Night(iX, iY, night.m_iCount + 1));
-		}
-
-		iX = night.m_iX + 1;
-		iY = night.m_iY + 2;
-		if (iX < p_iLine && iY < p_iLine) {
-			queueNight.push(Night(iX, iY, night.m_iCount + 1));
-		}
-
-		iX = night.m_iX + 2;
-		iY = night.m_iY + 1;
-		if (iX < p_iLine && iY < p_iLine) {
-			queueNight.push(Night(iX, iY, night.m_iCount + 1));
-		}
-
-		iX = night.m_iX + 1;
-		iY = night.m_iY - 2;
-		if (iX < p_iLine && iY >= 0 ) {
-			queueNight.push(Night(iX, iY, night.m_iCount + 1));
-		}
-
-		iX = night.m_iX + 2;
-		iY = night.m_iY - 1;
-		if (iX < p_iLine && iY >= 0) {
-			queueNight.push(Night(iX, iY, night.m_iCount + 1));
-		}
-
-		iX = night.m_iX - 1;
-		iY = night.m_iY - 2;
-		if (iX >= 0 && iY >= 0) {
-			queueNight.push(Night(iX, iY, night.m_iCount + 1));
-		}
-
-		iX = night.m_iX - 2;
-		iY = night.m_iY - 1;
-		if (iX >= 0 && iY >= 0) {
-			queueNight.push(Night(iX, iY, night.m_iCount + 1));
-		}
+		insertQueue(queueNight, aryCheck, night.m_iX - 2, night.m_iY + 1, night.m_iCount + 1, p_iLine);
+		insertQueue(queueNight, aryCheck, night.m_iX - 1, night.m_iY + 2, night.m_iCount + 1, p_iLine);
+		insertQueue(queueNight, aryCheck, night.m_iX + 1, night.m_iY + 2, night.m_iCount + 1, p_iLine);
+		insertQueue(queueNight, aryCheck, night.m_iX + 2, night.m_iY + 1, night.m_iCount + 1, p_iLine);
+		insertQueue(queueNight, aryCheck, night.m_iX + 1, night.m_iY - 2, night.m_iCount + 1, p_iLine);
+		insertQueue(queueNight, aryCheck, night.m_iX + 2, night.m_iY - 1, night.m_iCount + 1, p_iLine);
+		insertQueue(queueNight, aryCheck, night.m_iX - 1, night.m_iY - 2, night.m_iCount + 1, p_iLine);
+		insertQueue(queueNight, aryCheck, night.m_iX - 2, night.m_iY - 1, night.m_iCount + 1, p_iLine);
 	}
 
 	return iResult;
