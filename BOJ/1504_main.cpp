@@ -4,6 +4,8 @@
 
 using namespace std;
 
+#define INF 1e8
+
 struct NODE{
 	int iNode = 0;
 	int iDist = 0;
@@ -11,11 +13,10 @@ struct NODE{
 	NODE(const int& p_iNode, const int& p_iDist) : iNode(p_iNode), iDist(p_iDist) {};
 };
 
-
-int Dijkstra(const vector<vector<NODE>>& p_vecNode, const int& p_iStart, const int p_iEnd)
+vector<int> dijkstra(const vector<vector<NODE>>& p_vecNode, const int& p_iStart)
 {
 	int iNodeCnt = p_vecNode.size();
-	vector<int> vecDist(iNodeCnt, -1);
+	vector<int> vecDist(iNodeCnt, INF);
 
 	auto compare = [](const NODE &p_Node1, const NODE p_Node2) {
 		return p_Node1.iDist > p_Node2.iDist;
@@ -27,28 +28,20 @@ int Dijkstra(const vector<vector<NODE>>& p_vecNode, const int& p_iStart, const i
 		int iDist = queueNode.top().iDist;
 		queueNode.pop();
 
-		if (vecDist[iNode] != -1 && vecDist[iNode] <= iDist) {
+		if (vecDist[iNode] <= iDist) {
 			continue;
 		}
 		vecDist[iNode] = iDist;
 
-		if (iNode == p_iEnd) {
-			continue;
-		}
-
-		if (vecDist[p_iEnd] != -1 && vecDist[p_iEnd] <= iDist) {
-			continue;
-		}
-
 		for (const auto& node : p_vecNode[iNode]) {
 			int iNextDist = iDist + node.iDist;
-			if (vecDist[node.iNode] != -1 && vecDist[node.iNode] <= iNextDist) {
+			if (vecDist[node.iNode] <= iNextDist) {
 				continue;
 			}
 			queueNode.push(NODE(node.iNode, iNextDist));
 		}
 	}
-	return vecDist[p_iEnd];
+	return vecDist;
 };
 
 int main(int argc, char** argv)
@@ -74,33 +67,10 @@ int main(int argc, char** argv)
 	int iNode2 = 0;
 	cin >> iNode1 >> iNode2;
 
-	int iResult = Dijkstra(vecNode, iNode1, iNode2);
-	if (iResult != -1) {
-		int iFirst = Dijkstra(vecNode, 1, iNode1);
-		if (iFirst != -1) {
-			int iFristNext = Dijkstra(vecNode, iNode2, iNodeCnt);
-			iFirst = iFristNext != -1 ? iFirst + iFristNext : -1;
-		}
+	vector<int> vecDist1 = dijkstra(vecNode, iNode1);
+	vector<int> vecDist2 = dijkstra(vecNode, iNode2);
+	int iResult = vecDist1[iNode2] + min(vecDist1[1] + vecDist2[iNodeCnt], vecDist2[1] + vecDist1[iNodeCnt]);
 
-		int iSecond = Dijkstra(vecNode, 1, iNode2);
-		if (iSecond != -1) {
-			int iSecondNext = Dijkstra(vecNode, iNode1, iNodeCnt);
-			iSecond = iSecondNext != -1 ? iSecond + iSecondNext : -1;
-		}
-
-		if (iFirst == -1) {
-			iResult = iSecond != -1 ? iResult + iSecond : -1;
-		}
-		else {
-			if (iSecond == -1) {
-				iResult += iFirst;
-			}
-			else {
-				iResult += iFirst < iSecond ? iFirst : iSecond;
-			}
-		}
-	}
-
-	cout << iResult << endl;
+	cout << (iResult >= INF ? -1 : iResult) << endl;
 	return 0;
-}
+};
